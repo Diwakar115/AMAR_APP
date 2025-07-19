@@ -1,0 +1,124 @@
+// Main.java
+package amarapp;
+
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+
+public class Main extends Application {
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        Parent root = FXMLLoader.load(getClass().getResource("views/home.fxml"));
+        primaryStage.setTitle("AMAR_APP - Photo Gallery");
+        primaryStage.setScene(new Scene(root));
+        primaryStage.show();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
+
+// models/Photo.java
+package amarapp.models;
+
+public class Photo {
+    private String title;
+    private String filePath;
+
+    public Photo(String title, String filePath) {
+        this.title = title;
+        this.filePath = filePath;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+}
+
+// controllers/HomeController.java
+package amarapp.controllers;
+
+import amarapp.models.Photo;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.FlowPane;
+import javafx.stage.FileChooser;
+
+import java.io.File;
+
+public class HomeController {
+
+    @FXML
+    private FlowPane galleryPane;
+
+    @FXML
+    private Button addPhotoButton;
+
+    private ObservableList<Photo> photoList = FXCollections.observableArrayList();
+
+    public void initialize() {
+        refreshGallery();
+    }
+
+    @FXML
+    private void onAddPhoto(ActionEvent event) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select Photo");
+        File selectedFile = fileChooser.showOpenDialog(addPhotoButton.getScene().getWindow());
+
+        if (selectedFile != null) {
+            Photo photo = new Photo(selectedFile.getName(), selectedFile.getAbsolutePath());
+            photoList.add(photo);
+            refreshGallery();
+        }
+    }
+
+    private void refreshGallery() {
+        galleryPane.getChildren().clear();
+        for (Photo photo : photoList) {
+            ImageView imageView = new ImageView(new Image("file:" + photo.getFilePath(), 150, 150, true, true));
+            imageView.setOnMouseClicked((MouseEvent event) -> {
+                // TODO: implement full screen view
+            });
+            galleryPane.getChildren().add(imageView);
+        }
+    }
+}
+
+// views/home.fxml
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="amarapp.controllers.HomeController">
+    <top>
+        <ToolBar>
+            <Button fx:id="addPhotoButton" text="Add Photo" onAction="#onAddPhoto" />
+        </ToolBar>
+    </top>
+    <center>
+        <ScrollPane fitToWidth="true">
+            <FlowPane fx:id="galleryPane" hgap="10" vgap="10" padding="10">
+            </FlowPane>
+        </ScrollPane>
+    </center>
+</BorderPane>
+
